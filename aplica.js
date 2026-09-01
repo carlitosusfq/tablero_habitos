@@ -84,6 +84,29 @@ const renderizarHabitos = () => {
 
 renderizarHabitos();
 
+renderizarHabitos();
+
+const formHabito = document.getElementById("formHabito");
+const nombreHabito = document.getElementById("nombreHabito");
+
+formHabito.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const nombre = nombreHabito.value.trim();
+
+    if (nombre === "") {
+        return;
+    }
+
+    const nuevoHabito = crearHabito(nombre);
+
+    habitos.push(nuevoHabito);
+
+    nombreHabito.value = "";
+
+    renderizarHabitos();
+});
+
 listaHabitos.addEventListener("click", (event) => {
 
     const elemento = event.target;
