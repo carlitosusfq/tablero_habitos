@@ -63,10 +63,62 @@ const renderizarHabitos = () => {
             texto.classList.add("text-decoration-line-through");
         }
 
+        const botones = document.createElement("div");
+
+        botones.innerHTML = `
+            <button class="btn btn-sm btn-success btn-completar">
+                ${completado ? "Pendiente" : "Completar"}
+            </button>
+
+            <button class="btn btn-sm btn-danger btn-eliminar">
+                Eliminar
+            </button>
+        `;
+
         li.appendChild(texto);
+        li.appendChild(botones);
 
         listaHabitos.appendChild(li);
     });
 };
 
 renderizarHabitos();
+
+listaHabitos.addEventListener("click", (event) => {
+
+    const elemento = event.target;
+
+    const li = elemento.closest("li");
+
+    if (!li) {
+        return;
+    }
+
+    const id = Number(li.dataset.id);
+
+    if (elemento.classList.contains("btn-completar")) {
+
+        habitos = habitos.map((habito) => {
+
+            if (habito.id === id) {
+                return {
+                    ...habito,
+                    completado: !habito.completado
+                };
+            }
+
+            return habito;
+        });
+
+        renderizarHabitos();
+    }
+
+    if (elemento.classList.contains("btn-eliminar")) {
+
+        habitos = habitos.filter(
+            (habito) => habito.id !== id
+        );
+
+        renderizarHabitos();
+    }
+});
