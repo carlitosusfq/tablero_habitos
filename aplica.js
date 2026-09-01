@@ -1,46 +1,23 @@
-let habitos = [
-    {
-        id: 1,
-        nombre: "Tomar agua",
-        completado: false
-    },
-    {
-        id: 2,
-        nombre: "Leer 20 minutos",
-        completado: true
-    }
-];
-
-const crearHabito = (nombre) => {
-    return {
-        id: Date.now(),
-        nombre,
-        completado: false
-    };
-};
-
-const mostrarHabito = (habito) => {
-    const { id, nombre, completado } = habito;
-
-    console.log("ID:", id);
-    console.log("Nombre:", nombre);
-    console.log("Completado:", completado);
-};
-
-habitos.forEach((habito) => {
-    mostrarHabito(habito);
-});
+let habitos = JSON.parse(localStorage.getItem("habitos")) || [];
 
 const listaHabitos = document.getElementById("listaHabitos");
+const formHabito = document.getElementById("formHabito");
+const nombreHabito = document.getElementById("nombreHabito");
+
+const guardarHabitos = () => {
+    localStorage.setItem("habitos", JSON.stringify(habitos));
+};
+
+const crearHabito = (nombre) => ({
+    id: Date.now(),
+    nombre,
+    completado: false
+});
 
 const renderizarHabitos = () => {
-
     listaHabitos.innerHTML = "";
 
-    habitos.forEach((habito) => {
-
-        const { id, nombre, completado } = habito;
-
+    habitos.forEach(({ id, nombre, completado }) => {
         const li = document.createElement("li");
 
         li.className = `
@@ -48,15 +25,12 @@ const renderizarHabitos = () => {
             d-flex
             justify-content-between
             align-items-center
-            ${completado
-                ? "list-group-item-success"
-                : "list-group-item-light"}
+            ${completado ? "list-group-item-success" : "list-group-item-light"}
         `;
 
         li.dataset.id = id;
 
         const texto = document.createElement("span");
-
         texto.textContent = nombre;
 
         if (completado) {
@@ -77,71 +51,47 @@ const renderizarHabitos = () => {
 
         li.appendChild(texto);
         li.appendChild(botones);
-
         listaHabitos.appendChild(li);
     });
 };
-
-renderizarHabitos();
-
-renderizarHabitos();
-
-const formHabito = document.getElementById("formHabito");
-const nombreHabito = document.getElementById("nombreHabito");
 
 formHabito.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const nombre = nombreHabito.value.trim();
 
-    if (nombre === "") {
-        return;
-    }
+    if (!nombre) return;
 
-    const nuevoHabito = crearHabito(nombre);
+    habitos.push(crearHabito(nombre));
 
-    habitos.push(nuevoHabito);
+    guardarHabitos();
+    renderizarHabitos();
 
     nombreHabito.value = "";
-
-    renderizarHabitos();
 });
 
 listaHabitos.addEventListener("click", (event) => {
-
     const elemento = event.target;
-
     const li = elemento.closest("li");
 
-    if (!li) {
-        return;
-    }
+    if (!li) return;
 
     const id = Number(li.dataset.id);
 
     if (elemento.classList.contains("btn-completar")) {
-
-        habitos = habitos.map((habito) => {
-
-            if (habito.id === id) {
-                return {
-                    ...habito,
-                    completado: !habito.completado
-                };
-            }
-
-            return habito;
-        });
-
-        renderizarHabitos();
+        habitos = habitos.map((habito) =>
+            habito.id === id
+                ? { ...habito, completado: !habito.completado }
+                : habito
+        );
     }
 
     if (elemento.classList.contains("btn-eliminar")) {
-
-        habitos = habitos.filter(
-            (habito) => habito.id !== id
-        );
-
-        renderizarHabitos();
+        habitos = habitos.filter((habito) => habito.id !== id);
     }
+
+    guardarHabitos();
+    renderizarHabitos();
 });
+
+renderizarHabitos();
